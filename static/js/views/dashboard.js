@@ -146,7 +146,7 @@ const DashboardView = {
             title="${htmlEsc(e.subject || '')}">${htmlEsc(e.subject || 'No Subject')}</td>
         <td><span class="badge badge-${e.category}">${catLabel(e.category)}</span></td>
         <td><span class="conf-pill">${(e.confidence*100).toFixed(0)}%</span></td>
-        <td class="td-muted">${fmtDate(e.created_at)}</td>
+        <td class="td-muted">${fmtDate(e.received_at || e.created_at)}</td>
       </tr>`).join('');
   },
 
