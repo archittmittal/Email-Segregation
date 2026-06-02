@@ -51,7 +51,7 @@ def get_map_data():
     markers = []
 
     # 1. Fetch Tonnage
-    for t in session.query(Tonnage).order_by(Tonnage.created_at.desc()).limit(100).all():
+    for t in session.query(Tonnage).order_by(Tonnage.id.desc()).limit(100).all():
         coords = find_coordinates(t.open_port)
         if coords:
             markers.append({
@@ -64,7 +64,7 @@ def get_map_data():
             })
 
     # 2. Fetch Cargo VC
-    for c in session.query(CargoVC).order_by(CargoVC.created_at.desc()).limit(100).all():
+    for c in session.query(CargoVC).order_by(CargoVC.id.desc()).limit(100).all():
         coords = find_coordinates(c.load_port)
         if coords:
             markers.append({
@@ -77,7 +77,7 @@ def get_map_data():
             })
 
     # 3. Fetch Cargo TC
-    for c in session.query(CargoTC).order_by(CargoTC.created_at.desc()).limit(100).all():
+    for c in session.query(CargoTC).order_by(CargoTC.id.desc()).limit(100).all():
         coords = find_coordinates(c.delivery_port)
         if coords:
             markers.append({
