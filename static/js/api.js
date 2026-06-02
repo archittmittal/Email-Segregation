@@ -1,6 +1,9 @@
 /* api.js — Fetch wrappers for all backend endpoints */
 const API = {
-  BASE: '/api',
+  // Point to Hugging Face backend API when deployed on Vercel, fallback to local /api
+  BASE: (window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1'))
+    ? '/api'
+    : 'https://archittmittal-email-segregation.hf.space/api',
 
   async _req(method, path, body = null, params = {}) {
     const url = new URL(this.BASE + path, window.location.origin);

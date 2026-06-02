@@ -1,5 +1,6 @@
 import os
 from flask import Flask, send_from_directory
+from flask_cors import CORS
 
 from database.db import init_db
 from routes.emails import emails_bp
@@ -11,6 +12,13 @@ from routes.matching import matching_bp
 
 app = Flask(__name__, static_folder='static', static_url_path='')
 app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024  # 5 MB file size limit
+
+# Configure CORS dynamically based on allowed origins environment variable
+allowed_origins = os.environ.get('ALLOWED_ORIGINS', '*')
+if allowed_origins == '*':
+    CORS(app, resources={r"/api/*": {"origins": "*"}})
+else:
+    CORS(app, resources={r"/api/*": {"origins": allowed_origins.split(',')}})
 
 # ── API blueprints ─────────────────────────────────────────────────────────────
 app.register_blueprint(emails_bp,   url_prefix='/api')
