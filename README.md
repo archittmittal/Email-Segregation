@@ -1,13 +1,3 @@
----
-title: Email Segregation
-emoji: 📧
-colorFrom: blue
-colorTo: indigo
-sdk: docker
-app_port: 7860
-pinned: false
----
-
 # ⚓ ShipSeg: Automated Shipping Email Segregation & Data Extraction System
 
 [![Vercel App](https://img.shields.io/badge/%E2%96%B2%20Vercel-Deployed-black)](https://email-segregation.vercel.app/)
