@@ -49,12 +49,15 @@ def _parse_dwt(size_str: str | None) -> float | None:
 def _parse_quantity(qty_str: str | None) -> float | None:
     if not qty_str:
         return None
-    # e.g. "15,000 - 20,000 MTS" → average
-    nums = re.findall(r'[\d,]+', qty_str.replace(',', ''))
+    # Strip out percentages like "10PCT" or "10%"
+    clean_str = re.sub(r'\b\d+\s*(?:PCT|%)\b', '', qty_str, flags=re.IGNORECASE)
+    # Extract numbers
+    nums = re.findall(r'\b\d+[\d,\.]*\b', clean_str)
     vals = []
     for n in nums:
         try:
-            vals.append(float(n))
+            val = float(n.replace(',', ''))
+            vals.append(val)
         except ValueError:
             pass
     if not vals:
@@ -95,8 +98,10 @@ def _date_score(open_date: str | None, laycan: str | None) -> int:
         day = int(m.group(1)) if m else 1
         for token, num in month_map.items():
             if token in s_lo:
+                from datetime import datetime
+                current_year = datetime.now().year
                 yr_m = re.search(r'\b(20\d{2})\b', s)
-                yr = int(yr_m.group(1)) if yr_m else 2026
+                yr = int(yr_m.group(1)) if yr_m else current_year
                 return (yr, num, day)
         return None
 

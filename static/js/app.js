@@ -49,8 +49,11 @@ const App = {
   },
 
   navigate(viewKey) {
-    window.location.hash = viewKey;
-    this._render(viewKey);
+    if (window.location.hash === '#' + viewKey) {
+      this._render(viewKey);
+    } else {
+      window.location.hash = viewKey;
+    }
   },
 
   _render(key) {

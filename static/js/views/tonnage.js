@@ -80,7 +80,7 @@ const TonnageView = {
               title="${htmlEsc(r.account_name||'')}">${htmlEsc(r.account_name||'—')}</td>
           <td>
             <div class="action-cell">
-              <button class="btn btn-ghost btn-sm btn-icon-only" title="View Source Email" onclick="viewEmailSource(${r.email_id}, '${htmlEsc(r.vessel_name || 'Vessel')}')">✉</button>
+              <button class="btn btn-ghost btn-sm btn-icon-only" title="View Source Email" onclick="viewEmailSource(${r.email_id})">✉</button>
               <button class="btn btn-ghost btn-sm btn-icon-only" title="Edit" onclick="TonnageView.edit(${r.id})">✎</button>
               <button class="btn btn-danger btn-sm btn-icon-only" title="Delete" onclick="TonnageView.delete(${r.id})">🗑</button>
             </div>

@@ -1,6 +1,5 @@
 import os
 from flask import Flask, send_from_directory
-from flask_cors import CORS
 
 from database.db import init_db
 from routes.emails import emails_bp
@@ -11,7 +10,7 @@ from routes.stats import stats_bp
 from routes.matching import matching_bp
 
 app = Flask(__name__, static_folder='static', static_url_path='')
-CORS(app)
+app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024  # 5 MB file size limit
 
 # ── API blueprints ─────────────────────────────────────────────────────────────
 app.register_blueprint(emails_bp,   url_prefix='/api')

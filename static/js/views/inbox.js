@@ -104,7 +104,7 @@ const InboxView = {
           <td>
             <div class="action-cell">
               <button class="btn btn-ghost btn-sm btn-icon-only" title="View raw"
-                onclick="InboxView.viewRaw(${e.id},'${htmlEsc(e.subject||'Email')}')">👁</button>
+                onclick="InboxView.viewRaw(${e.id})">👁</button>
               <button class="btn btn-danger btn-sm btn-icon-only" title="Delete"
                 onclick="InboxView.deleteEmail(${e.id})">🗑</button>
             </div>
@@ -145,9 +145,10 @@ const InboxView = {
 
   goPage(p) { this._page = p; this.load(); },
 
-  async viewRaw(id, subject) {
+  async viewRaw(id) {
     try {
       const email = await API.emailById(id);
+      const subject = email.subject || 'No Subject';
       
       let parsedHtml = '';
       if (email.tonnage && email.tonnage.length > 0) {
@@ -254,6 +255,6 @@ const InboxView = {
   },
 };
 
-window.viewEmailSource = function(id, title) {
-  InboxView.viewRaw(id, title || 'Source Email');
+window.viewEmailSource = function(id) {
+  InboxView.viewRaw(id);
 };

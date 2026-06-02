@@ -73,7 +73,7 @@ const CargoVCView = {
               title="${htmlEsc(r.account_name||'')}">${htmlEsc(r.account_name||'—')}</td>
           <td>
             <div class="action-cell">
-              <button class="btn btn-ghost btn-sm btn-icon-only" title="View Source Email" onclick="viewEmailSource(${r.email_id}, '${htmlEsc(r.cargo_name || 'Cargo VC')}')">✉</button>
+              <button class="btn btn-ghost btn-sm btn-icon-only" title="View Source Email" onclick="viewEmailSource(${r.email_id})">✉</button>
               <button class="btn btn-ghost btn-sm btn-icon-only" title="Edit" onclick="CargoVCView.edit(${r.id})">✎</button>
               <button class="btn btn-danger btn-sm btn-icon-only" title="Delete" onclick="CargoVCView.delete(${r.id})">🗑</button>
             </div>

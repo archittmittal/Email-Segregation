@@ -1,6 +1,7 @@
 import hashlib
 import io
 import re
+import logging
 
 from flask import Blueprint, request, jsonify
 from database.db import get_session
@@ -9,6 +10,7 @@ from classification.classifier import classify
 from extraction.extractor import extract
 from ingestion.email_parser import parse_email, parse_eml_bytes, extract_text_from_attachment
 
+logger = logging.getLogger(__name__)
 emails_bp = Blueprint('emails', __name__)
 
 
@@ -119,7 +121,8 @@ def process_email():
         return jsonify(result), status
     except Exception as exc:
         session.rollback()
-        return jsonify({'error': str(exc)}), 500
+        logger.exception("Failed to process email paste input")
+        return jsonify({'error': 'An internal error occurred while processing the email.'}), 500
     finally:
         session.close()
 
@@ -169,7 +172,8 @@ def upload_email():
         return jsonify(result), status
     except Exception as exc:
         session.rollback()
-        return jsonify({'error': str(exc)}), 500
+        logger.exception("Failed to process email upload input")
+        return jsonify({'error': 'An internal error occurred while processing the uploaded file.'}), 500
     finally:
         session.close()
 

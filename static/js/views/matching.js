@@ -48,7 +48,7 @@ const MatchingView = {
 
   async _loadVessels() {
     try {
-      const data = await API.tonnage({ per_page: 100 });
+      const data = await API.tonnage({ per_page: 1000 });
       this._vessels = data.records || [];
       this._renderVesselList();
     } catch(e) {

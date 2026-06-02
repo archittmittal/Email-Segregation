@@ -12,7 +12,7 @@ def get_tonnage():
     session = get_session()
     try:
         page = max(1, int(request.args.get('page', 1)))
-        per_page = min(100, int(request.args.get('per_page', 20)))
+        per_page = min(1000, int(request.args.get('per_page', 20)))
         search = request.args.get('search', '').strip()
         port = request.args.get('port', '').strip()
 

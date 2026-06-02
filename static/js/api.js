@@ -8,7 +8,20 @@ const API = {
     const opts = { method, headers: { 'Content-Type': 'application/json' } };
     if (body) opts.body = JSON.stringify(body);
     const res = await fetch(url, opts);
-    const data = await res.json();
+    
+    let data = {};
+    const contentType = res.headers.get('content-type') || '';
+    if (contentType.includes('application/json')) {
+      try {
+        data = await res.json();
+      } catch (err) {}
+    } else {
+      try {
+        const text = await res.text();
+        data = { error: text };
+      } catch (err) {}
+    }
+
     if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
     return data;
   },
