@@ -131,8 +131,10 @@ const InboxView = {
   filterCat(cat) {
     this._category = cat;
     this._page = 1;
+    const classMap = { tonnage: 'tonnage', cargo_vc: 'vc', cargo_tc: 'tc' };
+    const activeClass = cat ? classMap[cat] : 'all';
     document.querySelectorAll('#cat-bar .cat-pill').forEach(el => {
-      el.className = 'cat-pill' + (el.dataset.cat === cat ? ` active-${cat||'all'}` : '');
+      el.className = 'cat-pill' + (el.dataset.cat === cat ? ` active-${activeClass}` : '');
     });
     this.load();
   },

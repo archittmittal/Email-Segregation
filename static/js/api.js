@@ -43,12 +43,24 @@ const API = {
   deleteEmail: (id)     => API.delete(`/emails/${id}`),
 
   // File upload (multipart)
-  uploadEmail: (formData) => {
-    return fetch('/api/emails/upload', { method: 'POST', body: formData })
-      .then(res => res.json().then(data => {
+  uploadEmail(formData) {
+    return fetch(this.BASE + '/emails/upload', { method: 'POST', body: formData })
+      .then(async res => {
+        let data = {};
+        const contentType = res.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+          try {
+            data = await res.json();
+          } catch (err) {}
+        } else {
+          try {
+            const text = await res.text();
+            data = { error: text };
+          } catch (err) {}
+        }
         if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
         return data;
-      }));
+      });
   },
 
   tonnage:         (p)      => API.get('/tonnage',       p),

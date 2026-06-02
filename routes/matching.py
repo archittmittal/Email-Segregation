@@ -33,12 +33,17 @@ def _port_score(port_a: str | None, port_b: str | None) -> int:
 def _parse_dwt(size_str: str | None) -> float | None:
     if not size_str:
         return None
-    m = re.search(r'([\d,\.]+)', size_str.replace(',', ''))
+    s = size_str.upper().strip()
+    # Handle dot thousand separators (e.g. "93.116 DWT")
+    if re.search(r'\b\d{1,3}\.\d{3}\b', s) and ',' not in s and s.count('.') == 1:
+        s = s.replace('.', '')
+    
+    m = re.search(r'([\d,\.]+)', s.replace(',', ''))
     if m:
         try:
             val = float(m.group(1))
             # Handle "56K DWT" style
-            if 'K' in (size_str or '').upper() and val < 1000:
+            if 'K' in s and val < 1000:
                 val *= 1000
             return val
         except ValueError:

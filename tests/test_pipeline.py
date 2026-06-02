@@ -4,7 +4,7 @@ from classification.classifier import classify
 from extraction.tonnage_extractor import extract_tonnage
 from extraction.cargo_vc_extractor import extract_cargo_vc
 from extraction.cargo_tc_extractor import extract_cargo_tc
-from routes.matching import _port_score, _size_score, _date_score
+from routes.matching import _port_score, _size_score, _date_score, _parse_dwt, _parse_quantity
 from routes.emails import _fingerprint
 
 def test_classifier():
@@ -80,8 +80,18 @@ def test_matching_scores():
     # Size score
     assert _size_score("50000 DWT", "45000 MTS") == 20
     
+    # DWT parsing checks
+    assert _parse_dwt("93.116 DWT") == 93116.0
+    assert _parse_dwt("56K DWT") == 56000.0
+    assert _parse_dwt("56000") == 56000.0
+    
+    # Quantity parsing checks
+    assert _parse_quantity("15,000 - 20,000 MTS 10PCT") == 17500.0
+    
     # Date score
-    assert _date_score("OPEN XIAMEN O/A 2ND JUNE 2026", "LC 10-17 JUNE") == 30
+    from datetime import datetime
+    current_year = datetime.now().year
+    assert _date_score(f"OPEN XIAMEN O/A 2ND JUNE {current_year}", "LC 10-17 JUNE") == 30
 
 
 def test_deduplication():

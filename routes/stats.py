@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify
 from sqlalchemy import func
 from database.db import get_session
 from database.models import Email, Tonnage, CargoVC, CargoTC
