@@ -10,6 +10,9 @@ pinned: false
 
 # ⚓ ShipSeg: Automated Shipping Email Segregation & Data Extraction System
 
+[![Vercel App](https://img.shields.io/badge/%E2%96%B2%20Vercel-Deployed-black)](https://email-segregation.vercel.app/)
+[![Hugging Face Backend](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Backend-blue)](https://huggingface.co/spaces/archittmittal/Email-Segregation)
+
 ShipSeg is a modular, high-performance local pipeline built to ingest, classify, and extract commercial data from unstructured shipping broker emails and attachments. 
 
 By automating the transition from messy emails to a structured database, the platform eliminates manual data entry, reduces vessel-to-cargo matching latency, and increases market visibility.
