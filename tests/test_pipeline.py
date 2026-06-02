@@ -130,3 +130,29 @@ def test_analytics_endpoint():
         assert 'labels' in data['vessel_sizes']
         assert 'data' in data['vessel_sizes']
 
+
+def test_email_date_parsing():
+    from ingestion.email_parser import parse_email
+    from datetime import datetime, timezone
+    
+    # 1. Pasted email with headers
+    raw_pasted = """From: chartering@primemaritime.gr
+Subject: TEST EMAIL
+Date: Tue, 02 Jun 2026 12:00:00 +0000
+
+This is raw body content
+"""
+    parsed = parse_email(raw_pasted)
+    assert parsed['subject'] == "TEST EMAIL"
+    assert parsed['sender'] == "chartering@primemaritime.gr"
+    assert parsed['received_at'] is not None
+    assert parsed['received_at'].year == 2026
+    assert parsed['received_at'].month == 6
+    assert parsed['received_at'].day == 2
+
+    # 2. Pasted email without headers
+    raw_simple = "This is a simple body without headers"
+    parsed_simple = parse_email(raw_simple)
+    assert parsed_simple['received_at'] is None
+
+

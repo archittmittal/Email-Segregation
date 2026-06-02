@@ -100,7 +100,7 @@ const InboxView = {
           <td class="td-muted" style="font-size:12px">${htmlEsc(e.sender || '—')}</td>
           <td><span class="badge badge-${e.category}">${catLabel(e.category)}</span></td>
           <td><span class="conf-pill">${(e.confidence*100).toFixed(0)}%</span></td>
-          <td class="td-muted">${fmtDate(e.created_at)}</td>
+          <td class="td-muted">${fmtDate(e.received_at || e.created_at)}</td>
           <td>
             <div class="action-cell">
               <button class="btn btn-ghost btn-sm btn-icon-only" title="View raw"

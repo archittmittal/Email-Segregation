@@ -9,11 +9,12 @@ from email import policy as _policy
 def parse_email(raw: str) -> dict:
     """
     Accepts raw email text (paste or file content).
-    Returns dict with: subject, sender, body (cleaned).
+    Returns dict with: subject, sender, body (cleaned), received_at.
     """
     lines = raw.splitlines()
     subject = 'Manual Input'
     sender = 'unknown'
+    received_at = None
     body_lines = []
     in_header = True
 
@@ -24,6 +25,13 @@ def parse_email(raw: str) -> dict:
                 subject = stripped[8:].strip()
             elif stripped.lower().startswith('from:'):
                 sender = stripped[5:].strip()
+            elif stripped.lower().startswith('date:'):
+                date_str = stripped[5:].strip()
+                from email.utils import parsedate_to_datetime
+                try:
+                    received_at = parsedate_to_datetime(date_str)
+                except Exception:
+                    pass
             elif stripped == '':
                 in_header = False
         else:
@@ -39,6 +47,7 @@ def parse_email(raw: str) -> dict:
         'subject': subject,
         'sender': sender,
         'body': body.strip(),
+        'received_at': received_at,
     }
 
 
@@ -46,14 +55,23 @@ def parse_email(raw: str) -> dict:
 
 def parse_eml_bytes(raw_bytes: bytes) -> dict:
     """
-    Parse a raw .eml file. Extracts subject, sender, and the plain-text body.
+    Parse a raw .eml file. Extracts subject, sender, received_at, and the plain-text body.
     Attachment text content is appended after the main body.
-    Returns dict: {subject, sender, body, attachments: [{filename, text}]}
+    Returns dict: {subject, sender, body, received_at, attachments: [{filename, text}]}
     """
     msg = _email_lib.message_from_bytes(raw_bytes, policy=_policy.default)
 
     subject = str(msg.get('Subject', 'No Subject'))
     sender  = str(msg.get('From', 'unknown'))
+    
+    received_at = None
+    date_str = msg.get('Date')
+    if date_str:
+        from email.utils import parsedate_to_datetime
+        try:
+            received_at = parsedate_to_datetime(str(date_str))
+        except Exception:
+            pass
 
     body_parts = []
     attachments = []
@@ -88,6 +106,7 @@ def parse_eml_bytes(raw_bytes: bytes) -> dict:
         'subject': subject,
         'sender': sender,
         'body': body,
+        'received_at': received_at,
         'attachments': attachments,
     }
 

@@ -24,8 +24,9 @@ def _fingerprint(text: str) -> str:
 
 # ── Helper: classify + extract + save ─────────────────────────────────────────
 
-def _process_and_save(raw_text: str, subject: str, sender: str, session) -> dict:
+def _process_and_save(raw_text: str, subject: str, sender: str, session, received_at=None) -> dict:
     """Run classify→extract→save pipeline. Returns result dict."""
+    from datetime import datetime, timezone
     fp = _fingerprint(raw_text)
 
     # Dedup check
@@ -35,6 +36,9 @@ def _process_and_save(raw_text: str, subject: str, sender: str, session) -> dict
 
     category, confidence = classify(raw_text)
 
+    if not received_at:
+        received_at = datetime.now(timezone.utc)
+
     email_obj = Email(
         subject=subject,
         sender=sender,
@@ -43,6 +47,7 @@ def _process_and_save(raw_text: str, subject: str, sender: str, session) -> dict
         confidence=confidence,
         is_duplicate=is_dup,
         fingerprint=fp,
+        received_at=received_at,
     )
     session.add(email_obj)
     session.flush()
@@ -108,15 +113,26 @@ def get_emails():
 def process_email():
     data = request.get_json(force=True)
     raw_text = (data.get('text') or '').strip()
-    subject  = (data.get('subject') or 'Manual Input').strip()
-    sender   = (data.get('sender') or 'manual@system').strip()
+    subject_input  = (data.get('subject') or '').strip()
+    sender_input   = (data.get('sender') or '').strip()
 
     if not raw_text:
         return jsonify({'error': 'No email text provided'}), 400
 
+    from ingestion.email_parser import parse_email
+    parsed = parse_email(raw_text)
+    
+    # If the user input subject/sender manually, prioritize them; else use parsed ones
+    subject = subject_input or parsed.get('subject') or 'Manual Input'
+    sender  = sender_input or parsed.get('sender') or 'manual@system'
+    received_at = parsed.get('received_at')
+    
+    # Clean the body text using the parsed result (it strips headers if they were pasted)
+    clean_text = parsed.get('body') or raw_text
+
     session = get_session()
     try:
-        result = _process_and_save(raw_text, subject, sender, session)
+        result = _process_and_save(clean_text, subject, sender, session, received_at=received_at)
         status = 200 if result['is_duplicate'] else 201
         return jsonify(result), status
     except Exception as exc:
@@ -140,6 +156,7 @@ def upload_email():
 
     subject = request.form.get('subject', '').strip()
     sender  = request.form.get('sender', '').strip()
+    received_at = None
 
     try:
         if filename.endswith('.eml'):
@@ -147,12 +164,14 @@ def upload_email():
             raw_text = parsed['body']
             subject  = subject or parsed.get('subject', 'Uploaded .eml')
             sender   = sender  or parsed.get('sender', 'unknown@upload')
+            received_at = parsed.get('received_at')
         elif filename.endswith('.txt'):
             raw_text = raw_bytes.decode('utf-8', errors='replace')
             parsed   = parse_email(raw_text)
             subject  = subject or parsed.get('subject', 'Uploaded .txt')
             sender   = sender  or parsed.get('sender', 'unknown@upload')
             raw_text = parsed.get('body', raw_text)
+            received_at = parsed.get('received_at')
         elif filename.endswith('.pdf'):
             raw_text = extract_text_from_attachment('file.pdf', raw_bytes)
             subject  = subject or 'Uploaded PDF'
@@ -167,7 +186,7 @@ def upload_email():
 
     session = get_session()
     try:
-        result = _process_and_save(raw_text.strip(), subject or 'Uploaded File', sender, session)
+        result = _process_and_save(raw_text.strip(), subject or 'Uploaded File', sender, session, received_at=received_at)
         status = 200 if result['is_duplicate'] else 201
         return jsonify(result), status
     except Exception as exc:
