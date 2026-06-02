@@ -152,9 +152,14 @@ const InboxView = {
       const email = await API.emailById(id);
       const subject = email.subject || 'No Subject';
       
+      let extractedTerms = [];
+
+      
       let parsedHtml = '';
       if (email.tonnage && email.tonnage.length > 0) {
-        parsedHtml += email.tonnage.map(t => `
+        parsedHtml += email.tonnage.map(t => {
+          extractedTerms.push(t.vessel_name, t.open_port, t.open_date, t.vessel_type, t.vessel_size, t.flag, t.built_year);
+          return `
           <div class="parsed-record-card tonnage">
             <div class="parsed-record-title">🚢 Vessel: ${htmlEsc(t.vessel_name)}</div>
             <div class="parsed-field-grid">
@@ -165,10 +170,13 @@ const InboxView = {
               <div class="parsed-field"><label>Flag</label><span>${htmlEsc(t.flag || '—')}</span></div>
               <div class="parsed-field"><label>Built</label><span class="mono">${htmlEsc(t.built_year || '—')}</span></div>
             </div>
-          </div>`).join('');
+          </div>`;
+        }).join('');
       }
       if (email.cargo_vc && email.cargo_vc.length > 0) {
-        parsedHtml += email.cargo_vc.map(c => `
+        parsedHtml += email.cargo_vc.map(c => {
+          extractedTerms.push(c.cargo_name, c.loading_port, c.discharge_port, c.laycan, c.cargo_type, c.quantity);
+          return `
           <div class="parsed-record-card cargo_vc">
             <div class="parsed-record-title">📦 Voyage Cargo: ${htmlEsc(c.cargo_name || 'Bulk Cargo')}</div>
             <div class="parsed-field-grid">
@@ -178,10 +186,13 @@ const InboxView = {
               <div class="parsed-field"><label>Laycan</label><span>${htmlEsc(c.laycan || '—')}</span></div>
               <div class="parsed-field"><label>Type</label><span>${htmlEsc(c.cargo_type || '—')}</span></div>
             </div>
-          </div>`).join('');
+          </div>`;
+        }).join('');
       }
       if (email.cargo_tc && email.cargo_tc.length > 0) {
-        parsedHtml += email.cargo_tc.map(c => `
+        parsedHtml += email.cargo_tc.map(c => {
+          extractedTerms.push(c.cargo_name, c.delivery_port, c.redelivery_port, c.duration, c.laycan, c.cargo_type);
+          return `
           <div class="parsed-record-card cargo_tc">
             <div class="parsed-record-title">⏱ Time Charter: ${htmlEsc(c.cargo_name || 'TCT Requirement')}</div>
             <div class="parsed-field-grid">
@@ -191,7 +202,8 @@ const InboxView = {
               <div class="parsed-field"><label>Laycan</label><span>${htmlEsc(c.laycan || '—')}</span></div>
               <div class="parsed-field"><label>Type</label><span>${htmlEsc(c.cargo_type || '—')}</span></div>
             </div>
-          </div>`).join('');
+          </div>`;
+        }).join('');
       }
       if (!parsedHtml) {
         parsedHtml = `
@@ -229,7 +241,7 @@ const InboxView = {
             <div class="modal-split">
               <div class="modal-split-left">
                 <div class="modal-split-header">Raw Email Body</div>
-                <pre class="modal-raw-body-pre">${htmlEsc(email.raw_body||'')}</pre>
+                <pre class="modal-raw-body-pre">${InboxView.applyHighlights(email.raw_body, extractedTerms)}</pre>
               </div>
               <div class="modal-split-right">
                 <div class="modal-split-header">Extracted Structured Data</div>
@@ -255,6 +267,30 @@ const InboxView = {
       Toast.show('Delete failed: ' + e.message, 'error');
     }
   },
+
+  applyHighlights(rawText, termsArray) {
+    let html = htmlEsc(rawText || '');
+    if (!termsArray || !termsArray.length) return html;
+    
+    const validTerms = termsArray
+      .filter(t => t != null && typeof t === 'string' && t.trim().length > 2)
+      .map(t => t.trim());
+
+    // Sort terms by length descending to prevent partial replacements of larger terms
+    const sortedTerms = [...new Set(validTerms)].sort((a, b) => b.length - a.length);
+
+    if (!sortedTerms.length) return html;
+
+    const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    
+    sortedTerms.forEach(term => {
+      // The (?![^<]*>) ensures we do not replace text inside an HTML tag attribute
+      const regex = new RegExp(`(${escapeRegExp(term)})(?![^<]*>)`, 'gi');
+      html = html.replace(regex, '<mark class="highlight-nlp">$1</mark>');
+    });
+    
+    return html;
+  }
 };
 
 window.viewEmailSource = function(id) {

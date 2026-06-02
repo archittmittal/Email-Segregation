@@ -1080,3 +1080,17 @@ tbody td {
   font-family: 'Inter', sans-serif;
 }
 
+/* ─────────────────────────────────────────────────────────────────────────────
+ * Smart Highlight Traceability (NLP Visualizer)
+ * ────────────────────────────────────────────────────────────────────────── */
+
+.highlight-nlp {
+  background-color: rgba(255, 193, 7, 0.25);
+  color: #ffc107;
+  border-radius: 3px;
+  padding: 0 3px;
+  font-weight: 600;
+  box-shadow: 0 0 6px rgba(255, 193, 7, 0.4);
+}
+
+
