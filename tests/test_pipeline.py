@@ -98,3 +98,35 @@ def test_deduplication():
     t1 = "Hello, this is a test email body for deduplication checking."
     t2 = "hello,  this is a test email body for deduplication checking. "
     assert _fingerprint(t1) == _fingerprint(t2)
+
+
+def test_analytics_endpoint():
+    from app import app
+    with app.test_client() as client:
+        response = client.get('/api/analytics')
+        assert response.status_code == 200
+        data = response.json
+        assert 'total_emails' in data
+        assert 'tonnage_records' in data
+        assert 'cargo_vc_records' in data
+        assert 'cargo_tc_records' in data
+        assert 'trend' in data
+        assert 'top_ports' in data
+        assert 'vessel_sizes' in data
+        
+        # Check trend structure
+        assert 'labels' in data['trend']
+        assert 'series' in data['trend']
+        assert len(data['trend']['labels']) == 30
+        assert 'tonnage' in data['trend']['series']
+        assert 'cargo_vc' in data['trend']['series']
+        assert 'cargo_tc' in data['trend']['series']
+        
+        # Check top_ports structure
+        assert 'labels' in data['top_ports']
+        assert 'data' in data['top_ports']
+        
+        # Check vessel_sizes structure
+        assert 'labels' in data['vessel_sizes']
+        assert 'data' in data['vessel_sizes']
+
