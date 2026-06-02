@@ -9,6 +9,7 @@ const VIEWS = {
   'cargo-vc':  { view: CargoVCView,   title: 'Cargo VC',         breadcrumb: 'Voyage Charter Cargos' },
   'cargo-tc':  { view: CargoTCView,   title: 'Cargo TC',         breadcrumb: 'Time Charter Cargos' },
   'matching':  { view: MatchingView,  title: 'Matching Engine',  breadcrumb: 'Vessel ↔ Cargo Matches' },
+  'analytics': { view: AnalyticsView, title: 'Market Analytics', breadcrumb: 'Market Trend & Distribution Analysis' },
   'history':   { view: HistoryView,   title: 'Broker History',   breadcrumb: 'Activity Timeline' },
 };
 

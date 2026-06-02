@@ -1093,4 +1093,35 @@ tbody td {
   box-shadow: 0 0 6px rgba(255, 193, 7, 0.4);
 }
 
+/* ─────────────────────────────────────────────────────────────────────────────
+ * Analytics & Market Heat Layout
+ * ────────────────────────────────────────────────────────────────────────── */
+
+.analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+.chart-card {
+  padding: 24px !important;
+  display: flex;
+  flex-direction: column;
+  min-height: 380px;
+}
+
+.chart-container {
+  position: relative;
+  flex-grow: 1;
+  width: 100%;
+  height: 280px;
+}
+
+@media (max-width: 1024px) {
+  .analytics-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
 
