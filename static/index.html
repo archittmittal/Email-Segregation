@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ShipSeg — Shipping Email Intelligence Platform</title>
+  <meta name="description" content="Automated shipping email classification and data extraction for Tonnage, Voyage Charter, and Time Charter emails." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">⚓</div>
+      <span class="logo-text">ShipSeg</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="#dashboard" class="nav-item active" id="nav-dashboard" data-view="dashboard">
+        <span class="nav-icon">◈</span>
+        <span class="nav-label">Dashboard</span>
+      </a>
+      <a href="#inbox" class="nav-item" id="nav-inbox" data-view="inbox">
+        <span class="nav-icon">✉</span>
+        <span class="nav-label">Inbox</span>
+        <span class="nav-badge" id="badge-inbox">0</span>
+      </a>
+
+      <div class="nav-section-label">EXTRACTED DATA</div>
+      <a href="#tonnage" class="nav-item" id="nav-tonnage" data-view="tonnage">
+        <span class="nav-icon">🚢</span>
+        <span class="nav-label">Tonnage</span>
+        <span class="nav-badge tonnage" id="badge-tonnage">0</span>
+      </a>
+      <a href="#cargo-vc" class="nav-item" id="nav-cargo-vc" data-view="cargo-vc">
+        <span class="nav-icon">📦</span>
+        <span class="nav-label">Cargo VC</span>
+        <span class="nav-badge vc" id="badge-vc">0</span>
+      </a>
+      <a href="#cargo-tc" class="nav-item" id="nav-cargo-tc" data-view="cargo-tc">
+        <span class="nav-icon">⏱</span>
+        <span class="nav-label">Cargo TC</span>
+        <span class="nav-badge tc" id="badge-tc">0</span>
+      </a>
+
+      <div class="nav-section-label">INTELLIGENCE</div>
+      <a href="#matching" class="nav-item" id="nav-matching" data-view="matching">
+        <span class="nav-icon">🔗</span>
+        <span class="nav-label">Matches</span>
+      </a>
+      <a href="#history" class="nav-item" id="nav-history" data-view="history">
+        <span class="nav-icon">📅</span>
+        <span class="nav-label">History</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-footer-info">
+        <div class="footer-dot"></div>
+        <span>System Online</span>
+      </div>
+      <div class="sidebar-footer-sub">No LLM APIs · Local ML Only</div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main-wrapper">
+    <!-- Top bar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1 class="page-title" id="page-title">Dashboard</h1>
+        <div class="breadcrumb" id="breadcrumb">Overview</div>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-ghost btn-sm" id="btn-upload-file" onclick="App.openUploadModal('file')" title="Upload .eml / .txt / .pdf">
+          <span class="btn-icon">📎</span> Upload File
+        </button>
+        <button class="btn btn-primary" id="btn-process-email" onclick="App.openUploadModal('paste')">
+          <span class="btn-icon">+</span> Process Email
+        </button>
+      </div>
+    </header>
+
+    <!-- Content area -->
+    <main class="content" id="app-content">
+      <div class="loading-spinner">
+        <div class="spinner"></div>
+        <p>Loading...</p>
+      </div>
+    </main>
+  </div>
+
+  <!-- Upload Modal -->
+  <div class="modal-overlay" id="modal-overlay" onclick="App.closeUploadModal(event)">
+    <div class="modal" id="upload-modal">
+      <div class="modal-header">
+        <h2 class="modal-title">Process New Email</h2>
+        <button class="modal-close" onclick="App.closeUploadModal(null, true)">✕</button>
+      </div>
+
+      <!-- Tab bar -->
+      <div class="modal-tabs" id="modal-tabs">
+        <button class="modal-tab active" id="tab-paste" onclick="App.switchTab('paste')">✏ Paste Text</button>
+        <button class="modal-tab" id="tab-file" onclick="App.switchTab('file')">📎 Upload File</button>
+      </div>
+
+      <div class="modal-body">
+
+        <!-- Paste tab -->
+        <div id="tab-content-paste">
+          <div class="form-group">
+            <label class="form-label" for="email-subject">Subject (optional)</label>
+            <input type="text" id="email-subject" class="form-input" placeholder="e.g. OPEN VESSELS – PACIFIC MAY 2026" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="email-sender">Sender (optional)</label>
+            <input type="text" id="email-sender" class="form-input" placeholder="e.g. chartering@broker.com" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="email-text">Email Body <span class="required">*</span></label>
+            <textarea id="email-text" class="form-textarea" rows="12" placeholder="Paste the full shipping email text here...&#10;&#10;e.g.&#10;MV SHENG AN HAI DWT 56564 OPEN XIAMEN, CHINA O/A 2ND JUNE 2026&#10;..."></textarea>
+          </div>
+        </div>
+
+        <!-- File upload tab -->
+        <div id="tab-content-file" style="display:none">
+          <div class="form-group">
+            <label class="form-label" for="upload-subject">Subject (optional)</label>
+            <input type="text" id="upload-subject" class="form-input" placeholder="Override subject from file" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="upload-sender">Sender (optional)</label>
+            <input type="text" id="upload-sender" class="form-input" placeholder="Override sender from file" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="upload-file-input">File <span class="required">*</span></label>
+            <div class="file-drop-zone" id="file-drop-zone" onclick="document.getElementById('upload-file-input').click()">
+              <div class="file-drop-icon">📎</div>
+              <div class="file-drop-text">Click to choose or drag & drop</div>
+              <div class="file-drop-sub">.eml · .txt · .pdf supported</div>
+              <div class="file-drop-name" id="file-drop-name" style="display:none"></div>
+            </div>
+            <input type="file" id="upload-file-input" accept=".eml,.txt,.pdf" style="display:none"
+              onchange="App.onFileSelected(this)" />
+          </div>
+        </div>
+
+        <!-- Classifier preview (shared) -->
+        <div class="classifier-preview" id="classifier-preview" style="display:none">
+          <div class="preview-label">Detected Category</div>
+          <div class="preview-badge" id="preview-badge">—</div>
+          <div class="preview-confidence" id="preview-confidence"></div>
+        </div>
+
+        <!-- Duplicate warning -->
+        <div class="duplicate-warning" id="duplicate-warning" style="display:none">
+          ⚠ This email appears to be a duplicate and has been flagged accordingly.
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="App.closeUploadModal(null, true)">Cancel</button>
+        <button class="btn btn-primary" id="btn-submit-email" onclick="App.submitEmail()">
+          <span id="btn-submit-text">Classify &amp; Extract</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Scripts -->
+  <script src="/js/utils.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/views/dashboard.js"></script>
+  <script src="/js/views/inbox.js"></script>
+  <script src="/js/views/tonnage.js"></script>
+  <script src="/js/views/cargo_vc.js"></script>
+  <script src="/js/views/cargo_tc.js"></script>
+  <script src="/js/views/matching.js"></script>
+  <script src="/js/views/history.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>
