@@ -1,3 +1,13 @@
+---
+title: Email Segregation
+emoji: 📧
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # ⚓ ShipSeg: Automated Shipping Email Segregation & Data Extraction System
 
 ShipSeg is a modular, high-performance local pipeline built to ingest, classify, and extract commercial data from unstructured shipping broker emails and attachments. 
