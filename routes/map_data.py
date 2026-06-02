@@ -65,14 +65,14 @@ def get_map_data():
 
     # 2. Fetch Cargo VC
     for c in session.query(CargoVC).order_by(CargoVC.id.desc()).limit(100).all():
-        coords = find_coordinates(c.load_port)
+        coords = find_coordinates(c.loading_port)
         if coords:
             markers.append({
                 "type": "cargo_vc",
                 "lat": coords["lat"],
                 "lon": coords["lon"],
                 "title": c.cargo_name or "Unknown Cargo",
-                "subtitle": f"Load: {c.load_port}",
+                "subtitle": f"Load: {c.loading_port}",
                 "date": c.laycan or ""
             })
 
