@@ -63,7 +63,7 @@ flowchart TD
 
 ---
 
-## 🛠️ Core Module Specifications
+## Core Module Specifications
 
 ### 1. Ingestion & Normalization (`ingestion/`)
 * **Multi-Format Support**: Parses raw email text paste blocks, standard `.eml` email files, `.txt` files, and `.pdf` attachments.
@@ -102,7 +102,7 @@ Computes compatibility scores (scale `0–100`) between open vessels and charter
 
 ---
 
-## 🚦 Getting Started
+##  Getting Started
 
 To run the application smoothly on your local machine without high memory usage or compilation overhead, run the application directly through the pre-installed system Python.
 
