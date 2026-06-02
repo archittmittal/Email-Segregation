@@ -12,7 +12,11 @@ function htmlEsc(str) {
 function fmtDate(iso) {
   if (!iso) return '—';
   try {
-    return new Date(iso).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'2-digit', hour:'2-digit', minute:'2-digit' });
+    let dateStr = iso;
+    if (typeof dateStr === 'string' && !dateStr.endsWith('Z') && !dateStr.includes('+') && !/[-+]\d{2}:?\d{2}$/.test(dateStr)) {
+      dateStr = dateStr + 'Z';
+    }
+    return new Date(dateStr).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'2-digit', hour:'2-digit', minute:'2-digit' });
   } catch { return iso; }
 }
 
