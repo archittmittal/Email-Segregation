@@ -9,6 +9,7 @@ from routes.cargo_vc import cargo_vc_bp
 from routes.cargo_tc import cargo_tc_bp
 from routes.stats import stats_bp
 from routes.matching import matching_bp
+from routes.map_data import map_data_bp
 
 app = Flask(__name__, static_folder='static', static_url_path='')
 app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024  # 5 MB file size limit
@@ -27,6 +28,7 @@ app.register_blueprint(cargo_vc_bp, url_prefix='/api')
 app.register_blueprint(cargo_tc_bp, url_prefix='/api')
 app.register_blueprint(stats_bp,    url_prefix='/api')
 app.register_blueprint(matching_bp, url_prefix='/api')
+app.register_blueprint(map_data_bp, url_prefix='/api')
 
 
 # ── Frontend SPA ──────────────────────────────────────────────────────────────

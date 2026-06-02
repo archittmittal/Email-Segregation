@@ -13,6 +13,10 @@ const DashboardView = {
             </div>`).join('')}
         </div>
 
+        <div class="card" style="margin-bottom: 24px; padding: 0; overflow: hidden;">
+          <div id="market-map"></div>
+        </div>
+
         <div class="two-col">
           <div>
             <div class="section-header">
@@ -78,8 +82,13 @@ const DashboardView = {
       this._renderRecent(stats.recent || []);
       this._renderChart(stats);
       App.updateBadges(stats);
+      
+      const mapData = await API._req('GET', '/map');
+      if (mapData && mapData.markers) {
+        this._renderMap(mapData.markers);
+      }
     } catch (e) {
-      Toast.show('Failed to load stats: ' + e.message, 'error');
+      Toast.show('Failed to load dashboard data: ' + e.message, 'error');
     }
   },
 
@@ -163,4 +172,52 @@ const DashboardView = {
       });
     });
   },
+
+  _renderMap(markers) {
+    if (this._map) {
+      this._map.remove();
+      this._map = null;
+    }
+    
+    // Default center to a global view (Atlantic/Africa to see East & West)
+    this._map = L.map('market-map').setView([20, 0], 2);
+    
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(this._map);
+
+    const colors = {
+      tonnage: '#ffc107',  // Gold
+      cargo_vc: '#0d6efd', // Blue
+      cargo_tc: '#6f42c1'  // Purple
+    };
+    
+    const emojis = {
+      tonnage: '🚢',
+      cargo_vc: '📦',
+      cargo_tc: '⏱'
+    };
+
+    markers.forEach(m => {
+      const color = colors[m.type] || '#ccc';
+      const iconHtml = `<div style="background-color: ${color}; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 4px rgba(0,0,0,0.5);"></div>`;
+      
+      const customIcon = L.divIcon({
+        className: 'custom-map-marker',
+        html: iconHtml,
+        iconSize: [16, 16],
+        iconAnchor: [8, 8]
+      });
+
+      L.marker([m.lat, m.lon], { icon: customIcon })
+        .bindPopup(`
+          <div style="font-size: 13px; margin: -5px;">
+            <strong style="color:var(--text-primary); font-size: 14px;">${emojis[m.type]} ${m.title}</strong><br>
+            <span style="color:var(--text-muted); font-size: 12px;">${m.subtitle}</span><br>
+            <span style="color:var(--text-muted); font-size: 11px;">${m.date}</span>
+          </div>
+        `)
+        .addTo(this._map);
+    });
+  }
 };
